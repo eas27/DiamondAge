@@ -4,34 +4,28 @@ import fitz
 import pyttsx3
 import xml.etree.ElementTree as ET
 import logging
-import sys
-import os
-from pydub import AudioSegment
-import ffmpeg
-import png
-from PIL import Image
-from PIL import ImageFont
-from PIL import ImageDraw
-import textwrap
-import subprocess
-import time
-from bs4 import BeautifulSoup
-import subprocess
+import glob
 from word2word import Word2word
-import pickle
 import pandas as pd
+import os
+import defs
+import AV_Generation
+import re
+import nltk
+from nltk.stem import WordNetLemmatizer
 
 class GLD:
     data: list
     fulldict: dict
-    engine:pyttsx3.Engine
+
+    AV:AV_Generation
 
     def __init__(self):
         self.data = []
         self.fulldict = {}
         self.logger = logging.getLogger()
-        self.engine = pyttsx3.init()
-        self.engine.setProperty('rate', 400)
+        self.AV = AV_Generation.AV_Generation()
+
 
     def GetTextFromPDF (self, pdfpath):
         #'data/Harry_Potter_y_la_Piedra_Filosofal_01.pdf'
@@ -51,9 +45,9 @@ class GLD:
         for w in splitall:
             w = w.strip().lower()
             if w not in wordlist:
-                wordlist [w] = 1
+                wordlist[w] = 1
             else:
-                wordlist [w] = wordlist [w] + 1
+                wordlist[w] = wordlist [w] + 1
         logging.info('Text Word List Length:' + str(len(wordlist)))
         revsort = dict(reversed(sorted(wordlist.items(), key=lambda item: item[1] )))
         return revsort
@@ -62,180 +56,58 @@ class GLD:
         outdict:dict
         outdict = {}
         if len(self.fulldict) == 0:
-            self.Read_Dictionary ("/Users/eric/PycharmProjects/DiamondAge/data/es-en.xml")
+            self.Read_Dictionary (defs.DATA_PATH + "es-en.xml")
         for w in worddict:
             if w in self.fulldict:
                 outdict[w] = self.fulldict [w]
         return outdict
 
-    def ReadWords (self, words:dict):
-        entryct = 0
-        for w in words:
-            try:
-                self.engine.setProperty('voice', 'com.apple.speech.synthesis.voice.monica')
-                self.engine.say(w)
-                self.engine.setProperty('voice', 'com.apple.speech.synthesis.voice.Alex')
-                self.engine.say(words[w])
-                print(w + ':' + words[w])
-                if entryct % 100 == 0:
-                    self.engine.runAndWait()
-            except:
-                self.logger.info('--ERROR'+ str(sys.exc_info()[0]))
-            entryct += 1
-        self.engine.runAndWait()
-
-    def SaveWordsToAudioFile (self, words:dict):
-        # fulltext = ''
-        entryct = 0
-        sys.path.append('/Users/eric/opt/anaconda3/envs/DSenv/lib/python3.7/site-packages/ffprobe/ffprobe.py')
-        path_to_save = os.getcwd() + '/Results/' + 'exp.mp3'
-        mp3path = os.getcwd() + '/Results/' + 'converted.mp3'
-        self.engine.save_to_file('text to speech  to speech to speech', path_to_save)
-        self.engine.runAndWait ()
-        self.engine.stop ()
-
-        #fulltext =''
-        #tts = self._TTS ()
-        #tts.start ('text')
-
-        #for w in words:
-
-        for i in range (0,5):
-             w = list (words)[i]
-             entryct += 1
-             #tts.save_to_file(w)
-             self.engine.setProperty('voice', 'com.apple.speech.synthesis.voice.monica')
-             self.engine.save_to_file(w, path_to_save)
-             self.engine.setProperty('voice', 'com.apple.speech.synthesis.voice.Alex')
-             self.engine.save_to_file(words[w], path_to_save)
-             print ('sleep' + str(i))
-             time.sleep(.5)
-        self.engine.startLoop()
-        self.engine.runAndWait()
-        self.engine.stop()
-        AudioSegment.from_file(path_to_save).export(mp3path, format="mp3")
-
-    class _TTS:
-
-        engine = None
-        rate = None
-
-        def __init__(self):
-            self.engine = pyttsx3.init()
-
-        def start(self, text_):
-            self.engine.say(text_)
-            self.engine.runAndWait()
-
-        def save_to_file (self, text_, fname):
-            self.engine.save_to_file(text_, fname)
-            self.engine.runAndWait()
-
-    def CreatePNGFiles (self, words: dict):
-        width = 640
-        height = 480
-        entryct = 0
-        img = []
-        for y in range(height):
-            row = ()
-            for x in range(width):
-                row = row + (255, 255, 255)
-            img.append(row)
-
-        with open('data/white.png', 'wb') as f:
-            w = png.Writer(width, height, greyscale=False)
-            w.write(f, img)
-            f.close()
-
-
-        for w in words:
-            entryct += 1
-            img = Image.open('data/white.png')
-            draw = ImageDraw.Draw(img)
-            font = ImageFont.truetype("/Library/Fonts/Arial.ttf", 40)
-            draw.text((30, 25), str(entryct), font=font, fill='#000000')
-            draw.text((30, 100), w, font=font, fill='#000000' )
-            tw = textwrap.wrap(words[w], 30)
-            ct = 0
-            for t in tw:
-                ct += 1
-                draw.text((30, 120 + 40 * ct), t, font=font, fill='#000000')
-            title = str(entryct).zfill(5)
-            img.save('data/png/' + title + '.png')
-
-
-
-
-        cmd = ["ffmpeg",
-               "-i",
-               "./data/png/%05d.png",
-               "-c:v",
-               "libx264",
-               "-r",
-               "10",
-               "-pix_fmt",
-               "yuv420p",
-               "/Users/eric/PycharmProjects/DiamondAge/movie.mp4"
-               ]
-
-        p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
-        fout = p.stdin
-        fout.close()
-        p.wait()
-        print(p.returncode)
-
+    def CreateDictMovie (self, words: dict):
+        self.AV.CreateDictPNGFiles (words)
+        outpath = self.AV.MakeMP4_from_Png(defs.DATA_PATH + "png/")
         lenfac = 8
-        cmd = ["ffmpeg",
-               "-y",
-               "-i",
-               "/Users/eric/PycharmProjects/DiamondAge/movie.mp4",
-               "-filter:v",
-               "setpts=" + str(lenfac) + "*PTS",
-               "/Users/eric/PycharmProjects/DiamondAge/moviefps.delta" + str(lenfac) + ".mp4"
-               ]
+        self.AV.stretch_mp4 (outpath, outpath.replace(".mp4", ".lenX" + str(lenfac) + ".mp4", lenfac))
 
-        p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
-        fout = p.stdin
-        fout.close()
-        p.wait()
-        print(p.returncode)
-        #
-        # cmd = ["ffmpeg",
-        #        "-i",
-        #        "/Users/eric/PycharmProjects/DiamondAge/movie.mp4",
-        #        "-i",
-        #        "/Users/eric/PycharmProjects/DiamondAge/converted.mp3",
-        #        "-c:v",
-        #        "copy",
-        #        "-c:a",
-        #        "aac",
-        #        "/Users/eric/PycharmProjects/DiamondAge/test.mp4"
-        #        ]
-        #
-        # p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
-        # fout = p.stdin
-        # fout.close()
-        # p.wait()
-        # print(p.returncode)
+    def CreateAVMovie (self, words: dict, inlang:str):
+        self.AV.ClearAVFolders ()
+        ect = 0
+        for w in words:
+            print (ect)
+            inword = {}
+            inword [w] = words [w]
+            try:
+                self.add_dict_AV (ect, inword , inlang)
+            except:
+                continue
+            ect += 1
+        mp4list = glob.glob(defs.RESULTS_PATH + 'frames/frame*/[0-9]*.mp4')
+        f = open(defs.RESULTS_PATH + 'frames/mp4list.txt', 'w')
+        for i in sorted (mp4list):
+             f.write ('file ' + i + '\n')
+        f.close()
+        outpath = self.AV.append_videos (defs.RESULTS_PATH + 'frames/mp4list.txt', defs.RESULTS_PATH + 'frames/full_movie.mp4')
 
-    def LookAtVoices():
-        engine = pyttsx3.init()
-        voices = engine.getProperty('voices')
-        newVoiceRate = 150
-        engine.setProperty('rate', newVoiceRate)
-        for voice in voices:
-            print("Voice:")
-            print(" - ID: %s" % voice.id)
-            print(" - Name: %s" % voice.name)
-            print(" - Languages: %s" % voice.languages)
-            print(" - Gender: %s" % voice.gender)
-            print(" - Age: %s" % voice.age)
+    def add_dict_AV (self, entrynum, words:dict, inlang:str):
+        def makesubdir (sub):
+            path = defs.RESULTS_PATH + sub
+            if not os.path.exists(path):
+                os.mkdir(path)
+            return path
+        makesubdir('frames')
+        framepath = makesubdir('frames/frame' + str (entrynum).zfill(5) + '/')
 
-
+        pngpath, nextnum = self.AV.CreateDictPNGFiles(words, framepath, entrynum)
+        self.logger.info ('pngs created: ' + framepath)
+        mp4path = self.AV.MakeMP4_from_Png(framepath, entrynum)
+        self.logger.info('mp4 created: ' + mp4path)
+        mp3path = self.AV.SaveDictWordsToAudioFile(framepath, words, inlang, entrynum)
+        self.logger.info('mp3 created: ' + mp3path)
+        wordAVmp4path = self.AV.CombineAudioVideo(mp4path, mp3path, framepath + str(entrynum).zfill(5) + '.mp4')
+        self.logger.info('Word AV created: ' + wordAVmp4path)
+        return
 
     def Read_Dictionary (self):
-
-        dict_document = '/Users/eric/PycharmProjects/DiamondAge/data/es-en.xml'
+        dict_document = defs.DATA_PATH + 'es-en.xml'
         tree= ET.parse(dict_document)
         root = tree.getroot()
         list = root.findall('l')
@@ -257,7 +129,7 @@ class GLD:
 
     def Read_Dictionary2 (self):
         from bs4 import BeautifulSoup
-        dictpath = '/Users/eric/PycharmProjects/DiamondAge/data/spa-eng.tei.freedict.txt'
+        dictpath = defs.DATA_PATH + 'spa-eng.tei.freedict.txt'
         with open(dictpath) as f:
             soup = BeautifulSoup(f, 'xml')
 
@@ -276,15 +148,46 @@ class GLD:
         self.logger.info('Read Dictionary Entries: ' + str(len(self.fulldict)))
         return self.fulldict
 
-    def Read_Dictionary_Word2Word_Pkl(self):
-        unpickled_df = pd.read_pickle('/Users/eric/PycharmProjects/DiamondAge/data/dictionaries/fr-en.pkl')
-        print(unpickled_df)
+    def dictcc_modify(self, word):
+        word = word.lower()
+        word = word.replace('qc.', '')
+        word = word.replace('{m}', '')
+        word = word.replace('{f}', '')
+        word = re.sub('\([^\(]+\)', '', word)
+        word = re.sub('\{[^\{]+\}', '', word)
+        word = re.sub('\[[^\[]+\]', '', word)
+        word = word.replace('qn.', '')
+        word = word.replace('/', '')
+        word = word.strip()
+        return word
+
+    def Read_Dictionary_dictcc(self, lang:str):
+        f = open(defs.DATA_PATH + 'dictionaries/' + lang + '.dict.cc.txt')
+        text = f.read()
+        splitlines = text.splitlines()
+        entryct = 0
+        pastheader = False
+        outdict = {}
+        for s in splitlines:
+            if not pastheader:
+                if s.strip () == '':
+                    pastheader = True
+                    continue
+            else:
+                vals = s.split(sep='\t')
+                word = self.dictcc_modify (vals [0])
+                if not word in outdict:
+                    outdict[word] = vals [1]
+                else:
+                    outdict[word] = outdict [word] + ';' + vals [1]
+                entryct += 1
+        return outdict
 
     def Read_DictionaryProto (self):
         engine = pyttsx3.init()
         newVoiceRate = 150
         engine.setProperty('rate', newVoiceRate)
-        pdf_document = "/Users/eric/PycharmProjects/DiamondAge/data/Spanish-English_Dictionary.pdf"
+        pdf_document = defs.DATA_PATH  + "Spanish-English_Dictionary.pdf"
         doc = fitz.open(pdf_document)
         print("number of pages: %i" % doc.pageCount)
         print(doc.metadata)
@@ -318,10 +221,10 @@ class GLD:
         #     print(page.Contents)
 
     def ReadFrequencies (self, lang):
-        f = open ('/Users/eric/PycharmProjects/DiamondAge/data/Frequencies/content/2018/' + lang +'/fr_full.txt', 'r')
-        list = f.readlines ()
-        listentries = [entry.split () for entry in list]
-        freqdict = dict (listentries)
+        f = open(defs.DATA_PATH + 'Frequencies/content/2018/' + lang + '/' + lang + '_full.txt', 'r')
+        list = f.readlines()
+        listentries = [entry.split() for entry in list]
+        freqdict = dict(listentries)
         return freqdict
 
     def RemoveCharacters (self, str):
@@ -334,41 +237,38 @@ class GLD:
         str = str.replace('¡', '')
         return str
 
-    # def scrapeForPDFs (self):
-    #     url ='http://google.com/search?q=libros+en+espanol+filetype%3Apdf&num=100'
-    #     response = requests.get(url)
-    #     print(response.headers)
-    #     soup = BeautifulSoup(response.text, 'html.parser')
-    #     links = soup.find_all('a')
-    #     print (links)
-    #     for link in links:
-    #         current_link = link.get('href')
-    #         if '.pdf' in current_link:
-    #             print('Tengo un pdf: ')
-    #             #print (current_link)
-    #             #h = re.search('(.*?)', current_link)
-    #             #if (h is not None):
-    #
-    #              #   print( h.group(0))
-    #
-    # def text_from_html(self, body):
-    #     def tag_visible(element):
-    #         if element.parent.name in ['style', 'script', 'head', 'title', 'meta', '[document]']:
-    #             return False
-    #         if isinstance(element, Comment):
-    #             return False
-    #         return True
-    #     soup = BeautifulSoup(body, 'html.parser')
-    #     texts = soup.findAll(text=True)
-    #     visible_texts = filter(tag_visible, texts)
-    #     return u" ".join(t.strip() for t in visible_texts)
-    #
-    #
+    def TranslateListW2W (self, langcode, inputlist):
+        langdata = Word2word.load(langcode, 'en', defs.DATA_PATH + 'dictionaries')
+        outdict = {}
+        for l in inputlist:
+            try:
+                outdict [l] = langdata(l)[0]
+            except:
+                continue
+        return outdict
 
-    def TranslateList (self, langcode, inputlist):
-        #to download pkl files from word2word
-        # bidir = Word2word("ru", "en", custom_savedir='/Users/eric/PycharmProjects/DiamondAge/data/dictionaries')
-        langdata = Word2word.load (langcode, 'en', '/Users/eric/PycharmProjects/DiamondAge/data/dictionaries')
-        for i in range (1,10):
-            print (inputlist[i] + ':' + langdata [inputlist [i] ])
-        return
+    def generate_dictionary_file (self, fpath, inputdict):
+        outfile = open (fpath, 'w')
+        try:
+            for entry in inputdict:
+                outfile.write(entry + '\t:\t' + inputdict[entry] + os.linesep)
+        finally:
+            outfile.close ()
+
+    def lookupWords (self, words: list, in_dict: dict):
+        outdict = {}
+        failct = 0
+        totalct = 0
+        for w in words:
+            if w in in_dict:
+                outdict [w] = in_dict [w]
+            else:
+                outdict[w] = 'no dictionary entry'
+                failct += 1
+            totalct += 1
+        print (str(failct) + '/' + str (totalct))
+        return outdict
+
+    def Lemmatize_word (self, word):
+        wordnet_lemmatizer = WordNetLemmatizer()
+        print (word, wordnet_lemmatizer.lemmatize(word))

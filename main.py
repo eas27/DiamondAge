@@ -6,7 +6,9 @@ import WebsiteSearcher
 import DBrunner
 import logging
 import os
+import defs
 from pandas import DataFrame
+import itertools
 
 print(os.getcwd())
 for handler in logging.root.handlers[:]:
@@ -21,7 +23,6 @@ pdf.set_font("Arial", size = 15)
 
 earlydate = datetime.now()-timedelta(days=365)
 print(earlydate)
-
 
 # WSS.searchArXiv('all:machine%20AND%20learning', earlydate, pdf)
 # WSS.searchArXiv('all:deep%20AND%20learning', earlydate, pdf)
@@ -57,8 +58,25 @@ GLD = GenerateLanguageData.GLD ()
 # sortedwords = df.set_index('word').T.to_dict('records')[0]
 #
 # GLD.CreatePNGFiles (sortedwords)
-freq = GLD.ReadFrequencies()
-GLD.TranslateList('fr',freq.keys () )
+
+freq = GLD.ReadFrequencies('fr')
+outdict = GLD.Read_Dictionary_dictcc ('fr')
+defsdict= GLD.lookupWords(freq.keys(), outdict)
+#outdict = GLD.TranslateList('fr', list(freq.keys()))
+#GLD.generate_dictionary_file(defs.RESULTS_PATH + 'fr_freq_w2w_dict.txt', outdict)
+words = dict(itertools.islice(defsdict.items(), 1000))
+for w in words:
+    if defsdict [w] == 'no dictionary entry':
+        print (w + ':' + defsdict [w] )
+        GLD.Lemmatize_word (w)
+
+
+
+
+
+
+#GLD.CreateAVMovie(words, 'fr')
+
 logger.info ('End logging')
 exit()
 
