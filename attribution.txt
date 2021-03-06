@@ -1,0 +1,31 @@
+@misc{robyn_speer_2018_1443582,
+  author       = {Robyn Speer and
+                  Joshua Chin and
+                  Andrew Lin and
+                  Sara Jewett and
+                  Lance Nathan},
+  title        = {LuminosoInsight/wordfreq: v2.2},
+  month        = oct,
+  year         = 2018,
+  doi          = {10.5281/zenodo.1443582},
+  url          = {https://doi.org/10.5281/zenodo.1443582}
+}
+
+https://github.com/hermitdave/FrequencyWords
+
+
+
+Manuel Bueno's Spanish-English-Spanish XML dictionary
+https://github.com/mananoreboton/en-es-en-Dic
+
+
+https://github.com/AlexPalauDomenech/word2word/blob/master/word2word.py
+https://github.com/kakaobrain/word2word
+
+@inproceedings{choe2020word2word,
+ author = {Yo Joong Choe and Kyubyong Park and Dongwoo Kim},
+ title = {word2word: A Collection of Bilingual Lexicons for 3,564 Language Pairs},
+ booktitle = {Proceedings of the 12th International Conference on Language Resources and Evaluation (LREC 2020)},
+ year = {2020}
+}
+https://www.groundai.com/project/word2word-a-collection-of-bilingual-lexicons-for-3564-language-pairs/1
