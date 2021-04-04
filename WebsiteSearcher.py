@@ -75,7 +75,8 @@ class WebsiteSearcher:
 
 
     def searchGoogleScholar(self, query, resct):
-
+        pdf = FPDF()
+        pdf.set_font("Arial", size=15)
         pg = ProxyGenerator()
         proxy = FreeProxy(rand=True, timeout=1, country_id='CA').get()
         pg.SingleProxy(http=proxy, https=proxy)
@@ -94,6 +95,8 @@ class WebsiteSearcher:
             pdf.multi_cell (width, 10, txt=str(bib.encode('latin-1', 'replace').decode('latin-1')))
             resct = resct + 1
     def searchBioRxiv (self, query):
+        pdf = FPDF()
+        pdf.set_font("Arial", size=15)
        # url='https://www.biorxiv.org/search/'+query+'%20numresults%3A100'
         #       'text_abstract_title_flags%3Amatch-all%20jcode%3Abiorxiv%20numresults%3A10%20sort%3Arelevance-rank%20format_result%3Astandard'
        # data = urllib.request.urlopen(url).read()
@@ -140,4 +143,35 @@ class WebsiteSearcher:
                 alltext += p.text
         return alltext
 
+
+ # def scrapeForPDFs (self):
+    #     url ='http://google.com/search?q=libros+en+espanol+filetype%3Apdf&num=100'
+    #     response = requests.get(url)
+    #     print(response.headers)
+    #     soup = BeautifulSoup(response.text, 'html.parser')
+    #     links = soup.find_all('a')
+    #     print (links)
+    #     for link in links:
+    #         current_link = link.get('href')
+    #         if '.pdf' in current_link:
+    #             print('Tengo un pdf: ')
+    #             #print (current_link)
+    #             #h = re.search('(.*?)', current_link)
+    #             #if (h is not None):
+    #
+    #              #   print( h.group(0))
+    #
+    # def text_from_html(self, body):
+    #     def tag_visible(element):
+    #         if element.parent.name in ['style', 'script', 'head', 'title', 'meta', '[document]']:
+    #             return False
+    #         if isinstance(element, Comment):
+    #             return False
+    #         return True
+    #     soup = BeautifulSoup(body, 'html.parser')
+    #     texts = soup.findAll(text=True)
+    #     visible_texts = filter(tag_visible, texts)
+    #     return u" ".join(t.strip() for t in visible_texts)
+    #
+    #
 

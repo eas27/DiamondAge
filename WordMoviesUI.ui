@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QTextEdit" name="InputText">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>60</y>
+      <width>351</width>
+      <height>281</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="ExtractWords">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>350</y>
+      <width>113</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Extract Words</string>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="OutputTextEdit">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>60</y>
+      <width>351</width>
+      <height>281</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="StatusLabel">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>370</y>
+      <width>611</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Status</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="MakeMovie">
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>350</y>
+      <width>113</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>MakeMovie</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="InputLangCB">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>30</y>
+      <width>351</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="editable">
+     <bool>true</bool>
+    </property>
+    <property name="currentText">
+     <string>&lt;None&gt;</string>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <item>
+     <property name="text">
+      <string>&lt;None&gt;</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>en-English</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>es-Spanish</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>de-German</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>fr-French</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>10</y>
+      <width>101</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Input Language</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="OutLangL">
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>10</y>
+      <width>111</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Output Language</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="OutputLangCB">
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>30</y>
+      <width>351</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="editable">
+     <bool>true</bool>
+    </property>
+    <property name="currentText">
+     <string>&lt;None&gt;</string>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <item>
+     <property name="text">
+      <string>&lt;None&gt;</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>en-English</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>es-Spanish</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>de-German</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>fr-French</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QGroupBox" name="VideoPrefsGB">
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>410</y>
+      <width>351</width>
+      <height>121</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Video Preferences</string>
+    </property>
+    <widget class="QRadioButton" name="InputFirstRB">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>20</y>
+       <width>191</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Read Input Language First</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="OutputFirstRB">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>40</y>
+       <width>201</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Read Output Language First</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="ExtractPreferencesGB">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>409</y>
+      <width>351</width>
+      <height>121</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Extract Words Preferences</string>
+    </property>
+    <widget class="QPlainTextEdit" name="WordLimitTB">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>20</y>
+       <width>104</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="plainText">
+      <string>500</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="WordLimit">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>20</y>
+       <width>71</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Word Limit</string>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>ExtractWords</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>do_ExtractWords()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>128</x>
+     <y>400</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>250</x>
+     <y>435</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>MakeMovie</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>do_MakeMovie()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>470</x>
+     <y>383</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>616</x>
+     <y>449</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>do_ExtractWords()</slot>
+  <slot>do_MakeMovie()</slot>
+ </slots>
+</ui>
